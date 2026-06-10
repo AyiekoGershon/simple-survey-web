@@ -15,7 +15,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+            background: #0b0e17;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -23,16 +23,32 @@
             padding: 20px;
         }
 
+        /* ===== Animated Background ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 20%, rgba(108, 99, 255, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
         .login-container {
-            background: white;
+            background: #1a1f35;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(108, 99, 255, 0.1);
             max-width: 900px;
             width: 100%;
             overflow: hidden;
             position: relative;
             min-height: 600px;
             display: none;
+            border: 1px solid rgba(108, 99, 255, 0.1);
         }
 
         .login-container.show {
@@ -51,14 +67,15 @@
         }
 
         .admin-form {
-            background: linear-gradient(135deg, #1a56db 0%, #1340a0 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(79, 70, 229, 0.08));
+            color: #e8edf5;
+            border-right: 1px solid rgba(108, 99, 255, 0.1);
         }
 
         .user-form {
-            background: white;
-            color: #333;
-            border-left: 1px solid #e5e7eb;
+            background: #1a1f35;
+            color: #e8edf5;
+            border-left: 1px solid rgba(108, 99, 255, 0.1);
         }
 
         .login-form h1 {
@@ -70,10 +87,19 @@
             gap: 12px;
         }
 
+        .admin-form h1 i {
+            color: #6c63ff;
+        }
+
+        .user-form h1 i {
+            color: #a78bfa;
+        }
+
         .login-form .subtitle {
             font-size: 14px;
             margin-bottom: 24px;
-            opacity: 0.9;
+            opacity: 0.7;
+            color: #9ba3c0;
         }
 
         .form-group {
@@ -85,63 +111,57 @@
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 6px;
-            opacity: 0.8;
+            color: #9ba3c0;
         }
 
         .form-group input {
             width: 100%;
             padding: 12px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s ease;
+            background: rgba(11, 14, 23, 0.6);
+            color: #e8edf5;
         }
 
-        .admin-form input {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-            color: white;
+        .form-group input::placeholder {
+            color: #5c6486;
         }
 
-        .admin-form input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .admin-form input:focus {
+        .form-group input:focus {
             outline: none;
-            border-color: white;
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-        }
-
-        .user-form input:focus {
-            outline: none;
-            border-color: #1a56db;
-            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
         }
 
         .demo-credentials {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            padding: 12px;
+            background: rgba(108, 99, 255, 0.06);
+            border-radius: 10px;
+            padding: 14px;
             margin-bottom: 20px;
             font-size: 12px;
-            border-left: 3px solid white;
-        }
-
-        .demo-credentials.user {
-            background: #f0f4ff;
-            border-left-color: #1a56db;
-            color: #1a56db;
+            border-left: 3px solid #6c63ff;
+            border: 1px solid rgba(108, 99, 255, 0.1);
         }
 
         .demo-credentials strong {
             display: block;
             margin-bottom: 4px;
+            color: #a78bfa;
+            font-size: 13px;
         }
 
         .demo-credentials p {
-            margin: 2px 0;
+            margin: 3px 0;
+            color: #9ba3c0;
+            font-size: 12px;
+        }
+
+        .demo-credentials p strong {
+            display: inline;
+            font-size: 12px;
+            color: #e8edf5;
         }
 
         .form-actions {
@@ -155,35 +175,33 @@
         .remember-me {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             flex: 1;
+            color: #9ba3c0;
         }
 
         .remember-me input[type="checkbox"] {
             width: 16px;
             height: 16px;
             cursor: pointer;
+            accent-color: #6c63ff;
         }
 
         .forgot-password {
             text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-
-        .admin-form .forgot-password {
-            color: white;
+            color: #5c6486;
+            transition: color 0.3s;
         }
 
         .forgot-password:hover {
-            opacity: 1;
+            color: #6c63ff;
         }
 
         .login-btn {
             width: 100%;
             padding: 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
@@ -193,64 +211,66 @@
         }
 
         .admin-form .login-btn {
-            background: white;
-            color: #1a56db;
+            background: linear-gradient(135deg, #6c63ff, #4f46e5);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
         }
 
         .admin-form .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
         }
 
         .user-form .login-btn {
-            background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #8b5cf6, #6c63ff);
             color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
         }
 
         .user-form .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(26, 86, 219, 0.3);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
         }
 
         .toggle-role {
             text-align: center;
             margin-top: 16px;
             font-size: 13px;
-            opacity: 0.7;
+            color: #5c6486;
         }
 
         .toggle-role a {
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
+            color: #a78bfa;
+            transition: color 0.3s;
         }
 
-        .admin-form .toggle-role a {
-            color: white;
-            opacity: 1;
-        }
-
-        .user-form .toggle-role a {
-            color: #1a56db;
-            opacity: 1;
+        .toggle-role a:hover {
+            color: #6c63ff;
         }
 
         /* Landing Page */
         .landing-container {
-            background: white;
+            background: #1a1f35;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(108, 99, 255, 0.1);
             padding: 60px 40px;
             max-width: 600px;
             width: 100%;
             text-align: center;
+            border: 1px solid rgba(108, 99, 255, 0.1);
         }
 
         .landing-container h1 {
             font-size: 36px;
             font-weight: 700;
             margin-bottom: 16px;
-            color: #1a56db;
+            background: linear-gradient(135deg, #8b83ff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .landing-container .logo-icon {
@@ -260,7 +280,7 @@
 
         .landing-container p {
             font-size: 16px;
-            color: #6b7280;
+            color: #9ba3c0;
             margin-bottom: 32px;
             line-height: 1.6;
         }
@@ -272,38 +292,30 @@
         }
 
         .role-btn {
-            padding: 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            background: white;
+            padding: 24px 20px;
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            border-radius: 14px;
+            background: rgba(11, 14, 23, 0.4);
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
-            color: #333;
+            color: #e8edf5;
+            display: block;
         }
 
         .role-btn:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border-color: #1a56db;
+            box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+            border-color: #6c63ff;
+            background: rgba(108, 99, 255, 0.06);
         }
 
         .role-btn.admin {
-            border-color: #1a56db;
-            background: linear-gradient(135deg, #1a56db15 0%, #7c3aed15 100%);
-        }
-
-        .role-btn.admin:hover {
-            background: linear-gradient(135deg, #1a56db25 0%, #7c3aed25 100%);
+            border-color: rgba(108, 99, 255, 0.25);
         }
 
         .role-btn.user {
-            border-color: #7c3aed;
-            background: linear-gradient(135deg, #7c3aed15 0%, #1a56db15 100%);
-        }
-
-        .role-btn.user:hover {
-            background: linear-gradient(135deg, #7c3aed25 0%, #1a56db25 100%);
+            border-color: rgba(139, 92, 246, 0.25);
         }
 
         .role-btn h3 {
@@ -313,7 +325,7 @@
 
         .role-btn p {
             font-size: 13px;
-            color: #6b7280;
+            color: #5c6486;
             margin: 0;
         }
 
@@ -333,7 +345,7 @@
 
             .user-form {
                 border-left: none;
-                border-top: 1px solid #e5e7eb;
+                border-top: 1px solid rgba(108, 99, 255, 0.1);
                 display: none;
             }
 
@@ -351,13 +363,14 @@
         }
 
         .error-message {
-            color: #dc2626;
-            background: #fee2e2;
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.1);
             padding: 10px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 16px;
             font-size: 13px;
             display: none;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .error-message.show {
@@ -365,13 +378,14 @@
         }
 
         .success-message {
-            color: #059669;
-            background: #d1fae5;
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.1);
             padding: 10px 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             margin-bottom: 16px;
             font-size: 13px;
             display: none;
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .success-message.show {
@@ -447,7 +461,7 @@
             <h1><i class="fas fa-user"></i> User Login</h1>
             <p class="subtitle">Access your surveys</p>
             
-            <div class="demo-credentials user">
+            <div class="demo-credentials">
                 <strong>Demo Credentials:</strong>
                 <p><strong>Email:</strong> user@example.com</p>
                 <p><strong>Password:</strong> user123</p>
