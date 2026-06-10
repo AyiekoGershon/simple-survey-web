@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Survey Platform - Login</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            min-height: 600px;
+            display: none;
+        }
+
+        .login-container.show {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .login-form {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            transition: all 0.6s ease;
+        }
+
+        .admin-form {
+            background: linear-gradient(135deg, #1a56db 0%, #1340a0 100%);
+            color: white;
+        }
+
+        .user-form {
+            background: white;
+            color: #333;
+            border-left: 1px solid #e5e7eb;
+        }
+
+        .login-form h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .login-form .subtitle {
+            font-size: 14px;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-form input {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .admin-form input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .admin-form input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .user-form input:focus {
+            outline: none;
+            border-color: #1a56db;
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+        }
+
+        .demo-credentials {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            border-left: 3px solid white;
+        }
+
+        .demo-credentials.user {
+            background: #f0f4ff;
+            border-left-color: #1a56db;
+            color: #1a56db;
+        }
+
+        .demo-credentials strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .demo-credentials p {
+            margin: 2px 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .admin-form .forgot-password {
+            color: white;
+        }
+
+        .forgot-password:hover {
+            opacity: 1;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-form .login-btn {
+            background: white;
+            color: #1a56db;
+        }
+
+        .admin-form .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-form .login-btn {
+            background: linear-gradient(135deg, #1a56db 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .user-form .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(26, 86, 219, 0.3);
+        }
+
+        .toggle-role {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .toggle-role a {
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .admin-form .toggle-role a {
+            color: white;
+            opacity: 1;
+        }
+
+        .user-form .toggle-role a {
+            color: #1a56db;
+            opacity: 1;
+        }
+
+        /* Landing Page */
+        .landing-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .landing-container h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1a56db;
+        }
+
+        .landing-container .logo-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .landing-container p {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .role-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .role-btn {
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .role-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: #1a56db;
+        }
+
+        .role-btn.admin {
+            border-color: #1a56db;
+            background: linear-gradient(135deg, #1a56db15 0%, #7c3aed15 100%);
+        }
+
+        .role-btn.admin:hover {
+            background: linear-gradient(135deg, #1a56db25 0%, #7c3aed25 100%);
+        }
+
+        .role-btn.user {
+            border-color: #7c3aed;
+            background: linear-gradient(135deg, #7c3aed15 0%, #1a56db15 100%);
+        }
+
+        .role-btn.user:hover {
+            background: linear-gradient(135deg, #7c3aed25 0%, #1a56db25 100%);
+        }
+
+        .role-btn h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .role-btn p {
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .role-btn .icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                min-height: auto;
+            }
+
+            .login-container.show {
+                grid-template-columns: 1fr;
+            }
+
+            .user-form {
+                border-left: none;
+                border-top: 1px solid #e5e7eb;
+                display: none;
+            }
+
+            .user-form.active {
+                display: flex;
+            }
+
+            .admin-form.hide {
+                display: none;
+            }
+
+            .role-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .error-message {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            color: #059669;
+            background: #d1fae5;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div class="landing-container" id="landingPage">
+        <div class="logo-icon">📋</div>
+        <h1>Sky Survey Platform</h1>
+        <p>Choose your role to proceed with login</p>
+        
+        <div class="role-buttons">
+            <a href="#" class="role-btn admin" onclick="goToLogin('admin'); return false;">
+                <div class="icon">👨‍💼</div>
+                <h3>Admin</h3>
+                <p>Manage surveys and responses</p>
+            </a>
+            <a href="#" class="role-btn user" onclick="goToLogin('user'); return false;">
+                <div class="icon">👤</div>
+                <h3>User</h3>
+                <p>Fill out surveys</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <!-- Admin Form -->
+        <div class="login-form admin-form">
+            <h1><i class="fas fa-shield-alt"></i> Admin Login</h1>
+            <p class="subtitle">Manage surveys and view responses</p>
+            
+            <div class="demo-credentials">
+                <strong>Demo Credentials:</strong>
+                <p><strong>Email:</strong> admin@survey.com</p>
+                <p><strong>Password:</strong> admin123</p>
+            </div>
+
+            <div class="error-message" id="adminError"></div>
+            <div class="success-message" id="adminSuccess"></div>
+
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label for="adminEmail">Email Address</label>
+                    <input type="email" id="adminEmail" placeholder="admin@survey.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-actions">
+                    <label class="remember-me">
+                        <input type="checkbox" id="adminRemember">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+
+                <div class="toggle-role">
+                    Not an admin? <a onclick="goToLogin('user'); return false;">Login as User</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- User Form -->
+        <div class="login-form user-form active">
+            <h1><i class="fas fa-user"></i> User Login</h1>
+            <p class="subtitle">Access your surveys</p>
+            
+            <div class="demo-credentials user">
+                <strong>Demo Credentials:</strong>
+                <p><strong>Email:</strong> user@example.com</p>
+                <p><strong>Password:</strong> user123</p>
+            </div>
+
+            <div class="error-message" id="userError"></div>
+            <div class="success-message" id="userSuccess"></div>
+
+            <form onsubmit="handleUserLogin(event)">
+                <div class="form-group">
+                    <label for="userEmail">Email Address</label>
+                    <input type="email" id="userEmail" placeholder="user@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <input type="password" id="userPassword" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-actions">
+                    <label class="remember-me">
+                        <input type="checkbox" id="userRemember">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn">Login</button>
+
+                <div class="toggle-role">
+                    Are you an admin? <a onclick="goToLogin('admin'); return false;">Login as Admin</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const user = JSON.parse(currentUser);
+                window.location.href = 'index.html';
+            }
+        });
+
+        function goToLogin(role) {
+            const landing = document.getElementById('landingPage');
+            const loginContainer = document.getElementById('loginContainer');
+            const adminForm = loginContainer.querySelector('.admin-form');
+            const userForm = loginContainer.querySelector('.user-form');
+
+            landing.style.display = 'none';
+            loginContainer.classList.add('show');
+
+            if (role === 'admin') {
+                adminForm.classList.remove('hide');
+                userForm.classList.remove('active');
+                document.getElementById('adminEmail').focus();
+            } else {
+                userForm.classList.add('active');
+                adminForm.classList.add('hide');
+                document.getElementById('userEmail').focus();
+            }
+        }
+
+        function goBack() {
+            const landing = document.getElementById('landingPage');
+            const loginContainer = document.getElementById('loginContainer');
+            landing.style.display = 'block';
+            loginContainer.classList.remove('show');
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const remember = document.getElementById('adminRemember').checked;
+            const errorEl = document.getElementById('adminError');
+            const successEl = document.getElementById('adminSuccess');
+
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            // Demo credentials check
+            if (email === 'admin@survey.com' && password === 'admin123') {
+                const user = {
+                    email: email,
+                    role: 'admin',
+                    loginTime: new Date().toISOString()
+                };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                if (remember) {
+                    localStorage.setItem('rememberedEmail', email);
+                    localStorage.setItem('rememberedRole', 'admin');
+                }
+                successEl.textContent = '✅ Login successful! Redirecting...';
+                successEl.classList.add('show');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                errorEl.textContent = '❌ Invalid email or password. Use demo credentials to test.';
+                errorEl.classList.add('show');
+            }
+        }
+
+        function handleUserLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const remember = document.getElementById('userRemember').checked;
+            const errorEl = document.getElementById('userError');
+            const successEl = document.getElementById('userSuccess');
+
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            // Demo credentials check
+            if (email === 'user@example.com' && password === 'user123') {
+                const user = {
+                    email: email,
+                    role: 'user',
+                    loginTime: new Date().toISOString()
+                };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                if (remember) {
+                    localStorage.setItem('rememberedEmail', email);
+                    localStorage.setItem('rememberedRole', 'user');
+                }
+                successEl.textContent = '✅ Login successful! Redirecting...';
+                successEl.classList.add('show');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } else {
+                errorEl.textContent = '❌ Invalid email or password. Use demo credentials to test.';
+                errorEl.classList.add('show');
+            }
+        }
+
+        // Pre-fill remembered email
+        window.addEventListener('load', () => {
+            const rememberedEmail = localStorage.getItem('rememberedEmail');
+            const rememberedRole = localStorage.getItem('rememberedRole');
+            if (rememberedEmail && rememberedRole) {
+                if (rememberedRole === 'admin') {
+                    document.getElementById('adminEmail').value = rememberedEmail;
+                } else {
+                    document.getElementById('userEmail').value = rememberedEmail;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

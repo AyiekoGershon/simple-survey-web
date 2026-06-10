@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Survey Platform</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <style>
+        /* ===== CSS Variables & Reset ===== */
+        :root {
+            --primary: #1a56db;
+            --primary-dark: #1340a0;
+            --primary-light: #e8effd;
+            --secondary: #7c3aed;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+            --transition: all 0.2s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ===== Layout ===== */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-header .logo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header .logo span { font-size: 24px; }
+
+        .header-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .header-nav button {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.85);
+            padding: 10px 18px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .header-nav button:hover { background: rgba(255,255,255,0.15); color: white; }
+        .header-nav button.active { background: rgba(255,255,255,0.2); color: white; }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        /* ===== Page Sections ===== */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-header h2 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #047857; transform: translateY(-1px); }
+
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { background: #b45309; }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gray-300);
+            color: var(--gray-700);
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
+        .btn-xs { padding: 4px 8px; font-size: 12px; border-radius: 4px; }
+        .btn-icon { padding: 6px; border-radius: 6px; }
+
+        /* ===== Cards ===== */
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover { box-shadow: var(--shadow-md); }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body { padding: 20px; }
+
+        .card-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* ===== Survey Cards ===== */
+        .survey-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        .survey-card .survey-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 6px;
+        }
+
+        .survey-card .survey-desc {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .survey-card .survey-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--gray-400);
+        }
+
+        .survey-card .survey-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .survey-card .survey-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.active { background: #d1fae5; color: #065f46; }
+        .status-badge.inactive { background: #fee2e2; color: #991b1b; }
+
+        /* ===== Tables ===== */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        td {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        tr:hover td { background: var(--gray-50); }
+
+        .actions-cell { display: flex; gap: 6px; }
+
+        /* ===== Forms ===== */
+        .form-group { margin-bottom: 18px; }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 6px;
+        }
+        .form-group label .required { color: var(--danger); }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 14px;
+            transition: var(--transition);
+            background: white;
+            color: var(--gray-900);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,86,219,0.15);
+        }
+
+        textarea.form-control { min-height: 80px; resize: vertical; }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 580px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.25s ease;
+        }
+
+        .modal-wide { max-width: 720px; }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { font-size: 18px; font-weight: 700; }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-400);
+            padding: 4px;
+            line-height: 1;
+            border-radius: 4px;
+        }
+        .modal-close:hover { background: var(--gray-100); color: var(--gray-600); }
+
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* ===== Toast ===== */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: var(--radius);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+            max-width: 380px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+        .toast-info { background: var(--primary); }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* ===== Option List ===== */
+        .option-list { list-style: none; margin-top: 6px; }
+        .option-list li {
+            background: var(--gray-50);
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-list li .opt-val { font-weight: 600; color: var(--primary); }
+        .option-list li .opt-label { color: var(--gray-600); }
+
+        /* ===== Response Form ===== */
+        .question-block {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        .question-block .q-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .question-block .q-desc {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-bottom: 10px;
+        }
+
+        .question-block .required-mark { color: var(--danger); margin-left: 4px; }
+
+        .choice-options label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            cursor: pointer;
+        }
+
+        .choice-options input[type="radio"],
+        .choice-options input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        /* ===== Empty State ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-400);
+        }
+
+        .empty-state .empty-icon { font-size: 64px; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 20px; color: var(--gray-600); margin-bottom: 8px; }
+        .empty-state p { font-size: 14px; max-width: 400px; margin: 0 auto 20px; }
+
+        /* ===== Loading ===== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-400);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== Question Type Badges ===== */
+        .q-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .q-type-badge.short_text { background: #dbeafe; color: #1e40af; }
+        .q-type-badge.long_text { background: #fef3c7; color: #92400e; }
+        .q-type-badge.email { background: #d1fae5; color: #065f46; }
+        .q-type-badge.single_choice { background: #ede9fe; color: #5b21b6; }
+        .q-type-badge.multiple_choice { background: #fce7f3; color: #9d174d; }
+        .q-type-badge.file { background: #ffedd5; color: #9a3412; }
+
+        /* ===== View Response Modal ===== */
+        .answer-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .answer-item:last-child { border-bottom: none; }
+
+        .answer-item .a-question {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        .answer-item .a-answer {
+            font-size: 14px;
+            color: var(--gray-600);
+            margin-top: 2px;
+        }
+
+        /* ===== Inline Form (Edit) ===== */
+        .inline-edit {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .inline-edit input {
+            padding: 6px 10px;
+            border: 2px solid var(--gray-200);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        /* ===== Stats ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-card .stat-num {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-label {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .main-container { padding: 16px; }
+            .survey-grid { grid-template-columns: 1fr; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .app-header { padding: 0 16px; }
+            .header-nav button { padding: 8px 12px; font-size: 13px; }
+        }
+
+        /* ===== Back Button ===== */
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 0;
+        }
+
+        .back-btn:hover { text-decoration: underline; }
+
+        /* ===== Tab Navigation ===== */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray-500);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: var(--transition);
+        }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+    <div class="logo"><span>📋</span> Sky Survey Platform</div>
+    <nav class="header-nav">
+        <button class="active" data-page="surveys" id="surveysTab" onclick="showPage('surveys')">📊 Surveys</button>
+        <button data-page="respond" id="respondTab" onclick="showPage('respond')">✏️ Respond</button>
+    </nav>
+    <div class="header-right">
+        <div class="user-info">
+            <span id="userEmail">User</span>
+            <span class="user-badge" id="userRole">User</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+</header>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main-container">
+
+    <!-- ==================== SURVEYS PAGE ==================== -->
+    <div class="page-section active" id="page-surveys">
+        <div class="page-header">
+            <h2>📊 Survey Management</h2>
+            <button class="btn btn-primary" onclick="openCreateSurveyModal()">+ New Survey</button>
+        </div>
+
+        <div class="survey-grid" id="surveyGrid">
+            <div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading surveys...</p></div>
+        </div>
+    </div>
+
+    <!-- ==================== SURVEY DETAIL PAGE ==================== -->
+    <div class="page-section" id="page-survey-detail">
+        <button class="back-btn" onclick="showPage('surveys')">← Back to Surveys</button>
+        <div id="surveyDetailContent"></div>
+    </div>
+
+    <!-- ==================== RESPOND PAGE ==================== -->
+    <div class="page-section" id="page-respond">
+        <div class="page-header">
+            <h2>✏️ Respond to Survey</h2>
+        </div>
+
+        <div id="respondContent">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="respondSurveySelect">Select a Survey</label>
+                        <select class="form-control" id="respondSurveySelect" onchange="loadSurveyForRespond()">
+                            <option value="">-- Choose a survey --</option>
+                        </select>
+                    </div>
+                    <div id="respondFormContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==================== CREATE/EDIT SURVEY MODAL ==================== -->
+<div class="modal-overlay" id="surveyModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="surveyModalTitle">Create Survey</h3>
+            <button class="modal-close" onclick="closeModal('surveyModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="surveyName">Survey Name <span class="required">*</span></label>
+                <input class="form-control" id="surveyName" placeholder="e.g. Customer Satisfaction Survey" maxlength="255">
+            </div>
+            <div class="form-group">
+                <label for="surveyDesc">Description</label>
+                <textarea class="form-control" id="surveyDesc" placeholder="Describe the purpose of this survey..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('surveyModal')">Cancel</button>
+            <button class="btn btn-primary" id="surveyModalSubmit" onclick="saveSurvey()">Create Survey</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ADD QUESTION MODAL ==================== -->
+<div class="modal-overlay" id="questionModal">
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <h3 id="questionModalTitle">Add Question</h3>
+            <button class="modal-close" onclick="closeModal('questionModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="qName">Field Name <span class="required">*</span></label>
+                    <input class="form-control" id="qName" placeholder="e.g. full_name" maxlength="100">
+                    <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">Used as the form field key (no spaces)</div>
+                </div>
+                <div class="form-group">
+                    <label for="qType">Question Type <span class="required">*</span></label>
+                    <select class="form-control" id="qType" onchange="toggleQuestionOptions()">
+                        <option value="short_text">Short Text</option>
+                        <option value="long_text">Long Text</option>
+                        <option value="email">Email</option>
+                        <option value="single_choice">Single Choice</option>
+                        <option value="multiple_choice">Multiple Choice</option>
+                        <option value="file">File Upload</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="qText">Question Text <span class="required">*</span></label>
+                <textarea class="form-control" id="qText" rows="2" placeholder="What is your full name?"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="qDesc">Description (optional)</label>
+                <textarea class="form-control" id="qDesc" rows="2" placeholder="Provide additional instructions..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="qRequired" checked style="margin-right:6px;accent-color:var(--primary)">
+                        Required question
+                    </label>
+                </div>
+            </div>
+            <div id="optionsGroup" style="display:none;">
+                <div class="form-group">
+                    <label>Options <span class="required">*</span></label>
+                    <div id="optionsContainer">
+                        <div class="form-row" style="margin-bottom:8px;">
+                            <input class="form-control" placeholder="Value (e.g. yes)" id="optVal0" style="font-size:13px;">
+                            <input class="form-control" placeholder="Label (e.g. Yes)" id="optLabel0" style="font-size:13px;">
+                            <button class="btn btn-sm btn-danger" onclick="removeOption(0)" style="flex-shrink:0;">✕</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline" onclick="addOption()">+ Add Option</button>
+                </div>
+            </div>
+            <div id="fileOptionsGroup" style="display:none;">
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>File Format</label>
+                        <select class="form-control" id="qFileFormat">
+                            <option value=".pdf">PDF</option>
+                            <option value=".jpg">JPG</option>
+                            <option value=".png">PNG</option>
+                            <option value=".doc">DOC</option>
+                            <option value=".csv">CSV</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Max Size (MB)</label>
+                        <input class="form-control" id="qFileMaxSize" type="number" value="5" min="1" max="100">
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:10px;">
+                        <label><input type="checkbox" id="qFileMultiple" checked style="margin-right:6px;accent-color:var(--primary)"> Allow multiple</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('questionModal')">Cancel</button>
+            <button class="btn btn-primary" id="questionModalSubmit" onclick="saveQuestion()">Add Question</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== VIEW RESPONSE MODAL ==================== -->
+<div class="modal-overlay" id="responseModal">
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <h3>Response Details</h3>
+            <button class="modal-close" onclick="closeModal('responseModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="responseModalBody">
+            <div class="loading"><div class="spinner"></div></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('responseModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== AUTHENTICATION CHECK =====
+let currentUser = null;
+
+window.addEventListener('load', () => {
+    const storedUser = localStorage.getItem('currentUser');
+    if (!storedUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+    currentUser = JSON.parse(storedUser);
+    initializeUserUI();
+});
+
+function initializeUserUI() {
+    document.getElementById('userEmail').textContent = currentUser.email;
+    document.getElementById('userRole').textContent = currentUser.role.toUpperCase();
+    
+    // Hide/show admin-only features
+    if (currentUser.role === 'user') {
+        // Hide surveys tab for users
+        const surveysTab = document.getElementById('surveysTab');
+        if (surveysTab) surveysTab.style.display = 'none';
+        
+        // Hide create survey button
+        const createBtn = document.querySelector('.page-header .btn-primary');
+        if (createBtn) createBtn.style.display = 'none';
+        
+        // Show respond page by default for users
+        showPage('respond');
+    } else {
+        // Admin user - show surveys tab by default
+        showPage('surveys');
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    }
+}
+
+// ===== CONFIGURATION =====
+const API_BASE = 'https://survey-api-luh9.onrender.com/api';
+let editingSurveyId = null;
+let editingQuestionId = null;
+let currentSurveyId = null;
+let optionCounter = 1;
+
+// ===== UTILITY FUNCTIONS =====
+function toast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = message;
+    container.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+
+function showPage(page) {
+    document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${page}`).classList.add('active');
+    document.querySelectorAll('.header-nav button').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.header-nav button[data-page="${page}"]`);
+    if (btn) btn.classList.add('active');
+
+    if (page === 'surveys') loadSurveys();
+    if (page === 'respond') loadRespondSurveyList();
+}
+
+// ===== XML PARSER =====
+function parseXML(xmlStr) {
+    const parser = new DOMParser();
+    return parser.parseFromString(xmlStr, 'text/xml');
+}
+
+function xmlToJson(xml) {
+    const result = {};
+    if (xml.children.length === 0) {
+        return xml.textContent || '';
+    }
+    for (const child of xml.children) {
+        const key = child.tagName;
+        const value = xmlToJson(child);
+        if (result[key]) {
+            if (!Array.isArray(result[key])) result[key] = [result[key]];
+            result[key].push(value);
+        } else {
+            result[key] = value;
+        }
+        // Handle attributes
+        if (child.attributes.length > 0) {
+            if (typeof result[key] === 'string') result[key] = { _text: result[key] };
+            for (const attr of child.attributes) {
+                if (result[key]) result[key][`@${attr.name}`] = attr.value;
+            }
+        }
+    }
+    return result;
+}
+
+function getSurveyListFromXML(xmlStr) {
+    const xml = parseXML(xmlStr);
+    const surveys = [];
+    for (const child of xml.documentElement.children) {
+        const id = parseInt(child.getAttribute('id'));
+        const name = child.querySelector('name')?.textContent || '';
+        const desc = child.querySelector('description')?.textContent || '';
+        const createdAt = child.querySelector('created_at')?.textContent || '';
+        const isActiveEl = child.querySelector('is_active');
+        const isActive = isActiveEl ? isActiveEl.textContent === 'true' : true;
+        surveys.push({ id, name, description: desc, created_at: createdAt, is_active: isActive });
+    }
+    return surveys;
+}
+
+function getQuestionListFromXML(xmlStr) {
+    const xml = parseXML(xmlStr);
+    const questions = [];
+    for (const child of xml.documentElement.children) {
+        const id = parseInt(child.getAttribute('id'));
+        const name = child.getAttribute('name') || '';
+        const type = child.getAttribute('type') || '';
+        const required = child.getAttribute('required') === 'yes';
+        const text = child.querySelector('text')?.textContent || '';
+        const desc = child.querySelector('description')?.textContent || '';
+        const optionsEl = child.querySelector('options');
+        const options = [];
+        if (optionsEl) {
+            for (const opt of optionsEl.children) {
+                options.push({
+                    value: opt.getAttribute('value') || '',
+                    label: opt.textContent || ''
+                });
+            }
+        }
+        questions.push({ id, name, type, required, text, description: desc, options });
+    }
+    return questions;
+}
+
+function getResponseListFromXML(xmlStr) {
+    const xml = parseXML(xmlStr);
+    const responses = [];
+    // Get total, page, page_size from root attributes
+    const total = parseInt(xml.documentElement.getAttribute('total')) || 0;
+    const page = parseInt(xml.documentElement.getAttribute('page')) || 1;
+    const pageSize = parseInt(xml.documentElement.getAttribute('page_size')) || 10;
+
+    for (const child of xml.documentElement.children) {
+        const id = parseInt(child.querySelector('response_id')?.textContent) || 0;
+        const email = child.querySelector('email_address')?.textContent || '';
+        const date = child.querySelector('date_responded')?.textContent || '';
+        // Get all answers (everything except response_id, email_address, date_responded, certificates)
+        const answers = {};
+        const certificates = [];
+        for (const field of child.children) {
+            const tag = field.tagName;
+            if (tag === 'certificates') {
+                // Parse certificates - could be single or multiple
+                for (const cert of field.children) {
+                    const certId = cert.getAttribute('id');
+                    const filename = cert.getAttribute('filename') || cert.textContent || '';
+                    if (certId) {
+                        certificates.push({ id: parseInt(certId), filename });
+                    }
+                }
+            } else if (!['response_id', 'email_address', 'date_responded', 'certificates'].includes(tag)) {
+                answers[tag] = field.textContent || '';
+            }
+        }
+        responses.push({ id, email, date, answers, certificates });
+    }
+    return { responses, total, page, pageSize };
+}
+
+// ===== API CALLS =====
+async function apiCall(method, path, params = {}) {
+    let url = `${API_BASE}${path}`;
+    const searchParams = new URLSearchParams();
+
+    // For GET and DELETE, send params as query string
+    if ((method === 'GET' || method === 'DELETE') && Object.keys(params).length > 0) {
+        for (const [k, v] of Object.entries(params)) {
+            if (v !== undefined && v !== null && v !== '') searchParams.append(k, v);
+        }
+        const queryStr = searchParams.toString();
+        if (queryStr) url += '?' + queryStr;
+    }
+
+    const options = { method };
+
+    // For POST and PUT, send params as form body
+    if (method === 'POST' || method === 'PUT') {
+        const bodyParams = new URLSearchParams();
+        for (const [k, v] of Object.entries(params)) {
+            if (v !== undefined && v !== null) bodyParams.append(k, v);
+        }
+        options.body = bodyParams;
+    }
+
+    const resp = await fetch(url, options);
+    const text = await resp.text();
+
+    if (!resp.ok) {
+        // Try to extract error from XML
+        try {
+            const xml = parseXML(text);
+            const detail = xml.querySelector('detail')?.textContent || text;
+            throw new Error(detail);
+        } catch (e) {
+            throw new Error(text || `HTTP ${resp.status}`);
+        }
+    }
+
+    return { status: resp.status, text };
+}
+
+// ===== SURVEYS =====
+let allSurveys = [];
+
+async function loadSurveys() {
+    const grid = document.getElementById('surveyGrid');
+    grid.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading surveys...</p></div>';
+
+    try {
+        const resp = await apiCall('GET', '/surveys', { active_only: false });
+        allSurveys = getSurveyListFromXML(resp.text);
+        renderSurveys();
+    } catch (e) {
+        grid.innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><h3>Failed to load surveys</h3><p>${e.message}</p><button class="btn btn-primary" onclick="loadSurveys()">Retry</button></div>`;
+    }
+}
+
+function renderSurveys() {
+    const grid = document.getElementById('surveyGrid');
+
+    if (allSurveys.length === 0) {
+        grid.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><h3>No surveys yet</h3><p>Create your first survey to start collecting responses.</p><button class="btn btn-primary" onclick="openCreateSurveyModal()">Create Survey</button></div>`;
+        return;
+    }
+
+    // Separate active and inactive surveys
+    const activeSurveys = allSurveys.filter(s => s.is_active);
+    const inactiveSurveys = allSurveys.filter(s => !s.is_active);
+
+    let html = '';
+
+    // Active surveys
+    if (activeSurveys.length > 0) {
+        html += `<div style="margin-bottom:8px;font-size:14px;font-weight:600;color:var(--gray-500);">Active Surveys (${activeSurveys.length})</div>`;
+        for (const s of activeSurveys) {
+            html += renderSurveyCard(s, true);
+        }
+    }
+
+    // Inactive surveys (soft-deleted)
+    if (inactiveSurveys.length > 0) {
+        html += `<div style="margin-top:24px;margin-bottom:8px;font-size:14px;font-weight:600;color:var(--gray-400);">Recently Deleted (${inactiveSurveys.length})</div>`;
+        for (const s of inactiveSurveys) {
+            html += renderSurveyCard(s, false);
+        }
+    }
+
+    grid.innerHTML = html;
+}
+
+function renderSurveyCard(s, isActive) {
+    const opacity = isActive ? '1' : '0.5';
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    
+    let actionsHtml = '';
+    if (isAdmin) {
+        actionsHtml = isActive ? `
+            <button class="btn btn-sm btn-outline" onclick="openEditSurveyModal(${s.id})">✏️ Edit</button>
+            <button class="btn btn-sm btn-outline" onclick="openCreateQuestionModal(${s.id})">➕ Question</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSurvey(${s.id})">🗑️ Delete</button>
+        ` : `
+            <button class="btn btn-sm btn-success" onclick="restoreSurvey(${s.id})">♻️ Restore</button>
+            <button class="btn btn-sm btn-danger" onclick="permanentDelete(${s.id})">🗑️ Permanently Delete</button>
+        `;
+    } else if (isActive) {
+        actionsHtml = `
+            <button class="btn btn-sm btn-primary" onclick="viewSurveyDetail(${s.id})">👁️ View</button>
+        `;
+    }
+    
+    return `
+        <div class="card survey-card" style="cursor:pointer;opacity:${opacity};" onclick="${isActive ? `viewSurveyDetail(${s.id})` : ''}">
+            <div class="card-body">
+                <div class="survey-name">
+                    ${escapeHtml(s.name)}
+                    ${isActive ? '<span class="status-badge active" style="font-size:11px;margin-left:8px;">Active</span>' : '<span class="status-badge inactive" style="font-size:11px;margin-left:8px;">Deleted</span>'}
+                </div>
+                <div class="survey-desc">${escapeHtml(s.description || 'No description')}</div>
+                <div class="survey-meta">
+                    <span>📅 ${s.created_at || 'N/A'}</span>
+                    <span>🆔 #${s.id}</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="survey-actions" onclick="event.stopPropagation()">
+                    ${actionsHtml}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ===== SURVEY CRUD =====
+function openCreateSurveyModal() {
+    if (currentUser.role !== 'admin') {
+        toast('Only admins can create surveys', 'error');
+        return;
+    }
+    editingSurveyId = null;
+    document.getElementById('surveyModalTitle').textContent = 'Create Survey';
+    document.getElementById('surveyModalSubmit').textContent = 'Create Survey';
+    document.getElementById('surveyName').value = '';
+    document.getElementById('surveyDesc').value = '';
+    openModal('surveyModal');
+}
+
+function openEditSurveyModal(id) {
+    if (currentUser.role !== 'admin') {
+        toast('Only admins can edit surveys', 'error');
+        return;
+    }
+    const survey = allSurveys.find(s => s.id === id);
+    if (!survey) return;
+    editingSurveyId = id;
+    document.getElementById('surveyModalTitle').textContent = 'Edit Survey';
+    document.getElementById('surveyModalSubmit').textContent = 'Save Changes';
+    document.getElementById('surveyName').value = survey.name;
+    document.getElementById('surveyDesc').value = survey.description || '';
+    openModal('surveyModal');
+}
+
+async function saveSurvey() {
+    const name = document.getElementById('surveyName').value.trim();
+    const desc = document.getElementById('surveyDesc').value.trim();
+
+    if (!name) { toast('Survey name is required', 'error'); return; }
+
+    try {
+        if (editingSurveyId) {
+            await apiCall('PUT', `/surveys/${editingSurveyId}`, { name, description: desc });
+            toast('Survey updated successfully!');
+        } else {
+            await apiCall('POST', '/surveys', { name, description: desc });
+            toast('Survey created successfully!');
+        }
+        closeModal('surveyModal');
+        loadSurveys();
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+async function deleteSurvey(id) {
+    if (currentUser.role !== 'admin') {
+        toast('Only admins can delete surveys', 'error');
+        return;
+    }
+    if (!confirm(`Are you sure you want to delete survey #${id}?`)) return;
+    const hardDelete = confirm('Click OK to permanently delete (cannot be undone).\nCancel to soft delete (survey will be hidden but can be restored later).');
+    try {
+        await apiCall('DELETE', `/surveys/${id}`, { soft_delete: !hardDelete });
+        toast(hardDelete ? 'Survey permanently deleted' : 'Survey moved to recently deleted');
+        loadSurveys();
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+async function restoreSurvey(id) {
+    try {
+        // Re-activate by updating is_active
+        await apiCall('PUT', `/surveys/${id}`, { is_active: 'true' });
+        toast('Survey restored successfully!');
+        loadSurveys();
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+async function permanentDelete(id) {
+    if (!confirm(`⚠️ Permanently delete survey #${id}? This CANNOT be undone!`)) return;
+    try {
+        await apiCall('DELETE', `/surveys/${id}`, { soft_delete: false });
+        toast('Survey permanently deleted');
+        loadSurveys();
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+// ===== SURVEY DETAIL (Questions & Responses) =====
+async function viewSurveyDetail(id) {
+    currentSurveyId = id;
+    showPage('survey-detail');
+    const container = document.getElementById('surveyDetailContent');
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const surveyResp = await apiCall('GET', `/surveys/${id}`);
+        const surveyXml = parseXML(surveyResp.text);
+        const surveyEl = surveyXml.documentElement;
+        const surveyName = surveyEl.querySelector('name')?.textContent || 'Survey';
+        const surveyDesc = surveyEl.querySelector('description')?.textContent || '';
+
+        const questionsResp = await apiCall('GET', `/surveys/${id}/questions`);
+        const questions = getQuestionListFromXML(questionsResp.text);
+
+        const responsesResp = await apiCall('GET', `/surveys/${id}/responses`, { page: 1, pageSize: 100 });
+        const responseData = getResponseListFromXML(responsesResp.text);
+
+        container.innerHTML = `
+            <div class="page-header" style="margin-top:12px;">
+                <div>
+                    <h2>${escapeHtml(surveyName)}</h2>
+                    <p style="color:var(--gray-500);">${escapeHtml(surveyDesc)}</p>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-primary" onclick="openCreateQuestionModal(${id})">➕ Add Question</button>
+                    <button class="btn btn-success" onclick="copyRespondLink(${id})">🔗 Share</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-num">${questions.length}</div><div class="stat-label">Questions</div></div>
+                <div class="stat-card"><div class="stat-num">${responseData.total}</div><div class="stat-label">Responses</div></div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchDetailTab(this, 'questions')">Questions (${questions.length})</div>
+                <div class="tab" onclick="switchDetailTab(this, 'responses')">Responses (${responseData.total})</div>
+            </div>
+
+            <div id="detailTabQuestions">
+                ${questions.length === 0
+                    ? `<div class="empty-state"><div class="empty-icon">❓</div><h3>No questions yet</h3><p>Add questions to start collecting responses.</p></div>`
+                    : renderQuestionTable(questions, id)
+                }
+            </div>
+
+            <div id="detailTabResponses" style="display:none;">
+                ${responseData.responses.length === 0
+                    ? `<div class="empty-state"><div class="empty-icon">📭</div><h3>No responses yet</h3><p>Share the survey link to start getting responses.</p></div>`
+                    : renderResponseTable(responseData.responses)
+                }
+            </div>
+        `;
+    } catch (e) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><h3>Error loading survey</h3><p>${e.message}</p></div>`;
+    }
+}
+
+function switchDetailTab(el, tab) {
+    document.querySelectorAll('#surveyDetailContent .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('detailTabQuestions').style.display = tab === 'questions' ? 'block' : 'none';
+    document.getElementById('detailTabResponses').style.display = tab === 'responses' ? 'block' : 'none';
+}
+
+function renderQuestionTable(questions, surveyId) {
+    let html = `<div class="card"><div class="table-container"><table>
+        <thead><tr>
+            <th>Order</th><th>Field Name</th><th>Type</th><th>Question</th><th>Required</th><th>Options</th><th>Actions</th>
+        </tr></thead><tbody>`;
+    for (const q of questions) {
+        html += `<tr>
+            <td>${q.id}</td>
+            <td><code>${escapeHtml(q.name)}</code></td>
+            <td><span class="q-type-badge ${q.type}">${q.type.replace('_', ' ')}</span></td>
+            <td>${escapeHtml(q.text)}</td>
+            <td>${q.required ? '✅ Yes' : '❌ No'}</td>
+            <td>${q.options.length > 0 ? `<ul class="option-list">${q.options.map(o => `<li><span class="opt-val">${o.value}</span> <span class="opt-label">${o.label}</span></li>`).join('')}</ul>` : '—'}</td>
+            <td><div class="actions-cell">
+                <button class="btn btn-xs btn-outline" onclick="openEditQuestionModal(${q.id}, ${surveyId})">✏️</button>
+                <button class="btn btn-xs btn-danger" onclick="deleteQuestion(${q.id}, ${surveyId})">🗑️</button>
+            </div></td>
+        </tr>`;
+    }
+    html += '</tbody></table></div></div>';
+    return html;
+}
+
+function renderResponseTable(responses) {
+    if (responses.length === 0) return '';
+    // Get all answer keys
+    const allKeys = new Set();
+    responses.forEach(r => Object.keys(r.answers).forEach(k => allKeys.add(k)));
+    const keys = Array.from(allKeys);
+
+    let html = `<div class="card"><div class="table-container"><table>
+        <thead><tr>
+            <th>ID</th><th>Email</th><th>Date</th>${keys.map(k => `<th>${escapeHtml(k)}</th>`).join('')}<th>Actions</th>
+        </tr></thead><tbody>`;
+    for (const r of responses) {
+        html += `<tr>
+            <td>#${r.id}</td>
+            <td>${escapeHtml(r.email)}</td>
+            <td>${r.date || 'N/A'}</td>
+            ${keys.map(k => `<td>${escapeHtml(r.answers[k] || '—')}</td>`).join('')}
+            <td><button class="btn btn-xs btn-outline" onclick="viewResponseDetail(${r.id})">👁️ View</button></td>
+        </tr>`;
+    }
+    html += '</tbody></table></div></div>';
+    return html;
+}
+
+function copyRespondLink(id) {
+    const url = window.location.origin + window.location.pathname + `?respond=${id}`;
+    navigator.clipboard.writeText(url).then(() => toast('Survey link copied! Share it with respondents.'));
+}
+
+// ===== QUESTIONS =====
+function openCreateQuestionModal(surveyId) {
+    if (currentUser.role !== 'admin') {
+        toast('Only admins can create questions', 'error');
+        return;
+    }
+    editingQuestionId = null;
+    currentSurveyId = surveyId;
+    document.getElementById('questionModalTitle').textContent = 'Add Question';
+    document.getElementById('questionModalSubmit').textContent = 'Add Question';
+    document.getElementById('qName').value = '';
+    document.getElementById('qType').value = 'short_text';
+    document.getElementById('qText').value = '';
+    document.getElementById('qDesc').value = '';
+    document.getElementById('qRequired').checked = true;
+    document.getElementById('qFileFormat').value = '.pdf';
+    document.getElementById('qFileMaxSize').value = 5;
+    document.getElementById('qFileMultiple').checked = true;
+    resetOptions();
+    toggleQuestionOptions();
+    openModal('questionModal');
+}
+
+function openEditQuestionModal(questionId, surveyId) {
+    editingQuestionId = questionId;
+    currentSurveyId = surveyId;
+    document.getElementById('questionModalTitle').textContent = 'Edit Question';
+    document.getElementById('questionModalSubmit').textContent = 'Save Question';
+
+    // Load question data from the detail view
+    // For simplicity, we'll just show the modal with empty fields and let the user re-enter
+    document.getElementById('qName').value = '';
+    document.getElementById('qType').value = 'short_text';
+    document.getElementById('qText').value = '';
+    document.getElementById('qDesc').value = '';
+    document.getElementById('qRequired').checked = true;
+    resetOptions();
+    toggleQuestionOptions();
+    openModal('questionModal');
+    toast('Edit mode: please modify fields and save. Name field cannot be changed.', 'info');
+}
+
+function toggleQuestionOptions() {
+    const type = document.getElementById('qType').value;
+    document.getElementById('optionsGroup').style.display = (type === 'single_choice' || type === 'multiple_choice') ? 'block' : 'none';
+    document.getElementById('fileOptionsGroup').style.display = (type === 'file') ? 'block' : 'none';
+}
+
+function addOption() {
+    const container = document.getElementById('optionsContainer');
+    const idx = optionCounter++;
+    const div = document.createElement('div');
+    div.className = 'form-row';
+    div.style.marginBottom = '8px';
+    div.innerHTML = `
+        <input class="form-control" placeholder="Value (e.g. yes)" id="optVal${idx}" style="font-size:13px;">
+        <input class="form-control" placeholder="Label (e.g. Yes)" id="optLabel${idx}" style="font-size:13px;">
+        <button class="btn btn-sm btn-danger" onclick="this.parentElement.remove()" style="flex-shrink:0;">✕</button>
+    `;
+    container.appendChild(div);
+}
+
+function removeOption(idx) {
+    const el = document.getElementById(`optVal${idx}`)?.parentElement;
+    if (el) el.remove();
+}
+
+function resetOptions() {
+    const container = document.getElementById('optionsContainer');
+    container.innerHTML = `
+        <div class="form-row" style="margin-bottom:8px;">
+            <input class="form-control" placeholder="Value (e.g. yes)" id="optVal0" style="font-size:13px;">
+            <input class="form-control" placeholder="Label (e.g. Yes)" id="optLabel0" style="font-size:13px;">
+            <button class="btn btn-sm btn-danger" onclick="removeOption(0)" style="flex-shrink:0;">✕</button>
+        </div>
+    `;
+    optionCounter = 1;
+}
+
+async function saveQuestion() {
+    const name = document.getElementById('qName').value.trim();
+    const type = document.getElementById('qType').value;
+    const text = document.getElementById('qText').value.trim();
+    const desc = document.getElementById('qDesc').value.trim();
+    const required = document.getElementById('qRequired').checked;
+
+    if (!name) { toast('Field name is required', 'error'); return; }
+    if (!text) { toast('Question text is required', 'error'); return; }
+
+    const params = { name, type, text, description: desc, required: required ? 'yes' : 'no' };
+
+    if (type === 'single_choice' || type === 'multiple_choice') {
+        const options = [];
+        const containers = document.querySelectorAll('#optionsContainer .form-row');
+        containers.forEach((row, i) => {
+            const val = row.querySelector('input[id^="optVal"]')?.value?.trim();
+            const label = row.querySelector('input[id^="optLabel"]')?.value?.trim();
+            if (val && label) options.push({ value: val, label });
+        });
+        if (options.length === 0) { toast('Please add at least one option', 'error'); return; }
+        params.options = JSON.stringify(options);
+    }
+
+    if (type === 'file') {
+        const format = document.getElementById('qFileFormat').value;
+        const maxSize = parseInt(document.getElementById('qFileMaxSize').value) || 5;
+        const multiple = document.getElementById('qFileMultiple').checked;
+        params.file_properties = JSON.stringify({ format, max_size_mb: maxSize, multiple });
+    }
+
+    try {
+        if (editingQuestionId) {
+            await apiCall('PUT', `/questions/${editingQuestionId}`, params);
+            toast('Question updated successfully!');
+        } else {
+            await apiCall('POST', `/surveys/${currentSurveyId}/questions`, params);
+            toast('Question added successfully!');
+        }
+        closeModal('questionModal');
+        viewSurveyDetail(currentSurveyId);
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+async function deleteQuestion(questionId, surveyId) {
+    if (!confirm('Delete this question? This cannot be undone.')) return;
+    try {
+        await apiCall('DELETE', `/questions/${questionId}`);
+        toast('Question deleted successfully');
+        viewSurveyDetail(surveyId);
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+// ===== RESPOND =====
+async function loadRespondSurveyList() {
+    const select = document.getElementById('respondSurveySelect');
+    select.innerHTML = '<option value="">-- Choose a survey --</option>';
+
+    try {
+        const resp = await apiCall('GET', '/surveys', { active_only: true });
+        const surveys = getSurveyListFromXML(resp.text);
+        for (const s of surveys) {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = `${s.name} (ID: ${s.id})`;
+            select.appendChild(opt);
+        }
+        document.getElementById('respondFormContainer').innerHTML = '';
+    } catch (e) {
+        toast('Failed to load surveys', 'error');
+    }
+}
+
+async function loadSurveyForRespond() {
+    const select = document.getElementById('respondSurveySelect');
+    const id = parseInt(select.value);
+    const container = document.getElementById('respondFormContainer');
+
+    if (!id) { container.innerHTML = ''; return; }
+
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const surveyResp = await apiCall('GET', `/surveys/${id}`);
+        const surveyXml = parseXML(surveyResp.text);
+        const surveyName = surveyXml.documentElement.querySelector('name')?.textContent || 'Survey';
+
+        const questionsResp = await apiCall('GET', `/surveys/${id}/questions`);
+        const questions = getQuestionListFromXML(questionsResp.text);
+
+        let html = `
+            <div class="card">
+                <div class="card-header">
+                    <h3 style="font-size:18px;">${escapeHtml(surveyName)}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="respondEmail">Your Email <span class="required">*</span></label>
+                        <input class="form-control" type="email" id="respondEmail" placeholder="your@email.com">
+                    </div>
+                    <div id="respondQuestions">
+        `;
+
+        for (const q of questions) {
+            const reqMark = q.required ? '<span class="required-mark">*</span>' : '';
+            html += `
+                <div class="question-block" data-qname="${q.name}" data-qtype="${q.type}" data-required="${q.required}">
+                    <div class="q-title">${escapeHtml(q.text)} ${reqMark}</div>
+                    ${q.description ? `<div class="q-desc">${escapeHtml(q.description)}</div>` : ''}
+            `;
+
+            if (q.type === 'short_text') {
+                html += `<input class="form-control" name="q_${q.name}" placeholder="Your answer..." ${q.required ? 'required' : ''}>`;
+            } else if (q.type === 'long_text') {
+                html += `<textarea class="form-control" name="q_${q.name}" rows="3" placeholder="Your answer..." ${q.required ? 'required' : ''}></textarea>`;
+            } else if (q.type === 'email') {
+                html += `<input class="form-control" type="email" name="q_${q.name}" placeholder="email@example.com" ${q.required ? 'required' : ''}>`;
+            } else if (q.type === 'single_choice') {
+                html += `<div class="choice-options">`;
+                for (const opt of q.options) {
+                    html += `<label><input type="radio" name="q_${q.name}" value="${opt.value}" ${q.required ? 'required' : ''}> ${escapeHtml(opt.label)}</label>`;
+                }
+                html += `</div>`;
+            } else if (q.type === 'multiple_choice') {
+                html += `<div class="choice-options">`;
+                for (const opt of q.options) {
+                    html += `<label><input type="checkbox" name="q_${q.name}" value="${opt.value}"> ${escapeHtml(opt.label)}</label>`;
+                }
+                html += `</div>`;
+            } else if (q.type === 'file') {
+                html += `<input class="form-control" type="file" name="q_${q.name}" ${q.required ? 'required' : ''}>`;
+            }
+
+            html += `</div>`;
+        }
+
+        html += `
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary" onclick="submitResponse(${id})">📨 Submit Response</button>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><h3>Error</h3><p>${e.message}</p></div>`;
+    }
+}
+
+async function submitResponse(surveyId) {
+    const email = document.getElementById('respondEmail').value.trim();
+    if (!email) { toast('Email is required', 'error'); return; }
+
+    const questionBlocks = document.querySelectorAll('#respondQuestions .question-block');
+    const answers = {};
+
+    for (const block of questionBlocks) {
+        const qname = block.dataset.qname;
+        const qtype = block.dataset.qtype;
+        const required = block.dataset.required === 'true';
+
+        if (qtype === 'single_choice') {
+            const selected = block.querySelector('input[type="radio"]:checked');
+            if (!selected && required) { toast(`Please answer: ${block.querySelector('.q-title')?.textContent?.trim()}`, 'error'); return; }
+            if (selected) answers[qname] = selected.value;
+        } else if (qtype === 'multiple_choice') {
+            const selected = block.querySelectorAll('input[type="checkbox"]:checked');
+            if (selected.length === 0 && required) { toast(`Please select at least one option for: ${qname}`, 'error'); return; }
+            if (selected.length > 0) {
+                answers[qname] = Array.from(selected).map(s => s.value).join(',');
+            }
+        } else if (qtype === 'file') {
+            const fileInput = block.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files.length > 0) {
+                answers[qname] = fileInput.files[0].name;
+            } else if (required) {
+                toast(`Please upload a file for: ${qname}`, 'error');
+                return;
+            }
+        } else {
+            const input = block.querySelector('input, textarea');
+            const val = input?.value?.trim();
+            if (!val && required) { toast(`Please answer: ${block.querySelector('.q-title')?.textContent?.trim()}`, 'error'); return; }
+            if (val) answers[qname] = val;
+        }
+    }
+
+    const params = { email_address: email };
+
+    try {
+        // Use FormData to support both text fields and file uploads
+        const url = `${API_BASE}/surveys/${surveyId}/responses`;
+        const formData = new FormData();
+
+        // Add email
+        formData.append('email_address', email);
+
+        // Add each answer - handle file uploads specially
+        let hasFile = false;
+        for (const [key, value] of Object.entries(answers)) {
+            // Check if this answer came from a file input
+            const questionBlock = document.querySelector(`.question-block[data-qname="${key}"]`);
+            if (questionBlock && questionBlock.dataset.qtype === 'file') {
+                const fileInput = questionBlock.querySelector('input[type="file"]');
+                if (fileInput && fileInput.files.length > 0) {
+                    formData.append(key, fileInput.files[0]);
+                    hasFile = true;
+                }
+            } else {
+                formData.append(key, value);
+            }
+        }
+
+        const resp = await fetch(url, { method: 'POST', body: formData });
+        const text = await resp.text();
+        if (!resp.ok) {
+            try {
+                const xml = parseXML(text);
+                const detail = xml.querySelector('detail')?.textContent || text;
+                throw new Error(detail);
+            } catch (e) {
+                throw new Error(text || `HTTP ${resp.status}`);
+            }
+        }
+        toast('✅ Response submitted successfully!');
+        document.getElementById('respondFormContainer').innerHTML = `
+            <div class="card">
+                <div class="card-body" style="text-align:center;padding:40px;">
+                    <div style="font-size:64px;">🎉</div>
+                    <h3 style="margin:16px 0 8px;">Thank you!</h3>
+                    <p style="color:var(--gray-500);">Your response has been submitted successfully.</p>
+                    <button class="btn btn-primary" style="margin-top:16px;" onclick="loadSurveyForRespond()">Submit Another</button>
+                </div>
+            </div>
+        `;
+    } catch (e) {
+        toast(`Error: ${e.message}`, 'error');
+    }
+}
+
+// ===== VIEW RESPONSE DETAIL =====
+async function viewResponseDetail(responseId) {
+    openModal('responseModal');
+    document.getElementById('responseModalBody').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        const resp = await apiCall('GET', `/surveys/${currentSurveyId}/responses`, { page: 1, pageSize: 100 });
+        const data = getResponseListFromXML(resp.text);
+        const response = data.responses.find(r => r.id === responseId);
+
+        if (!response) { throw new Error('Response not found'); }
+
+        let html = `
+            <p><strong>Response ID:</strong> #${response.id}</p>
+            <p><strong>Email:</strong> ${escapeHtml(response.email)}</p>
+            <p><strong>Submitted at:</strong> ${response.date || 'N/A'}</p>
+            <hr style="margin:16px 0;border:none;border-top:1px solid var(--gray-200);">
+            <h4 style="margin-bottom:12px;">Answers</h4>
+        `;
+
+        for (const [key, value] of Object.entries(response.answers)) {
+            html += `
+                <div class="answer-item">
+                    <div class="a-question">${escapeHtml(key)}</div>
+                    <div class="a-answer">${escapeHtml(value || '—')}</div>
+                </div>
+            `;
+        }
+
+        // Show certificates/files with download links
+        if (response.certificates && response.certificates.length > 0) {
+            html += `
+                <hr style="margin:16px 0;border:none;border-top:1px solid var(--gray-200);">
+                <h4 style="margin-bottom:12px;">📎 Uploaded Files</h4>
+            `;
+            for (const cert of response.certificates) {
+                html += `
+                    <div class="answer-item">
+                        <div class="a-question">${escapeHtml(cert.filename)}</div>
+                        <div class="a-answer">
+                            <a href="${API_BASE}/certificates/${cert.id}" target="_blank" class="btn btn-sm btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                                📥 Download
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('responseModalBody').innerHTML = html;
+    } catch (e) {
+        document.getElementById('responseModalBody').innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+    }
+}
+
+// ===== HELPERS =====
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ===== CHECK URL PARAMS =====
+function handleUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const respondId = params.get('respond');
+    if (respondId) {
+        showPage('respond');
+        setTimeout(async () => {
+            await loadRespondSurveyList();
+            document.getElementById('respondSurveySelect').value = respondId;
+            loadSurveyForRespond();
+        }, 300);
+    }
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+    loadSurveys();
+    handleUrlParams();
+});
+</script>
+
+</body>
+</html>
