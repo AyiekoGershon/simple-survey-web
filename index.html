@@ -1931,7 +1931,7 @@ async function viewResponseDetail(responseId) {
                     <div class="answer-item">
                         <div class="a-question">${escapeHtml(cert.filename)}</div>
                         <div class="a-answer" style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-sm btn-primary" onclick="downloadCertificate(${cert.id}, '${escapeHtml(cert.filename).replace(/'/g, "\\'")}')" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
+                                                        <button class="btn btn-sm btn-primary" onclick="downloadCertificate(${cert.id}, this.getAttribute('data-filename'))" data-filename="${escapeHtml(cert.filename)}" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                 📥 Download
                             </button>
                             <button class="btn btn-sm btn-outline" onclick="window.open('${downloadUrl}', '_blank')" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
