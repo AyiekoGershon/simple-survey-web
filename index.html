@@ -1890,7 +1890,8 @@ async function viewResponseDetail(responseId) {
     document.getElementById('responseModalBody').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
     try {
-        const resp = await apiCall('GET', `/surveys/${currentSurveyId}/responses`, { page: 1, pageSize: 100 });
+        // Fetch all responses (large page size to get all data)
+        const resp = await apiCall('GET', `/surveys/${currentSurveyId}/responses`, { page: 1, pageSize: 1000 });
         const data = getResponseListFromXML(resp.text);
         const response = data.responses.find(r => r.id === responseId);
 
@@ -1904,13 +1905,18 @@ async function viewResponseDetail(responseId) {
             <h4 style="margin-bottom:12px;">Answers</h4>
         `;
 
-        for (const [key, value] of Object.entries(response.answers)) {
-            html += `
-                <div class="answer-item">
-                    <div class="a-question">${escapeHtml(key)}</div>
-                    <div class="a-answer">${escapeHtml(value || '—')}</div>
-                </div>
-            `;
+        const answerEntries = Object.entries(response.answers);
+        if (answerEntries.length === 0) {
+            html += `<p style="color:var(--text-muted);padding:12px 0;">No answer data available for this response.</p>`;
+        } else {
+            for (const [key, value] of answerEntries) {
+                html += `
+                    <div class="answer-item">
+                        <div class="a-question">${escapeHtml(key)}</div>
+                        <div class="a-answer">${escapeHtml(value || '—')}</div>
+                    </div>
+                `;
+            }
         }
 
         // Show certificates/files with download links
@@ -1920,13 +1926,18 @@ async function viewResponseDetail(responseId) {
                 <h4 style="margin-bottom:12px;">📎 Uploaded Files</h4>
             `;
             for (const cert of response.certificates) {
+                const downloadUrl = `${API_BASE}/certificates/${cert.id}`;
                 html += `
                     <div class="answer-item">
                         <div class="a-question">${escapeHtml(cert.filename)}</div>
-                        <div class="a-answer">
-                            <a href="${API_BASE}/certificates/${cert.id}" target="_blank" class="btn btn-sm btn-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                        <div class="a-answer" style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-sm btn-primary" onclick="downloadCertificate(${cert.id}, '${escapeHtml(cert.filename).replace(/'/g, "\\'")}')" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
                                 📥 Download
-                            </a>
+                            </button>
+                            <button class="btn btn-sm btn-outline" onclick="window.open('${downloadUrl}', '_blank')" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px;cursor:pointer;">
+                                🔗 Open in New Tab
+                            </button>
+                            <span style="font-size:12px;color:var(--text-muted);align-self:center;">(${escapeHtml(cert.filename)})</span>
                         </div>
                     </div>
                 `;
@@ -1935,7 +1946,36 @@ async function viewResponseDetail(responseId) {
 
         document.getElementById('responseModalBody').innerHTML = html;
     } catch (e) {
-        document.getElementById('responseModalBody').innerHTML = `<p style="color:var(--danger)">Error: ${e.message}</p>`;
+        document.getElementById('responseModalBody').innerHTML = `<p style="color:var(--danger)">Error loading response details: ${e.message}</p>`;
+    }
+}
+
+// ===== DOWNLOAD CERTIFICATE =====
+async function downloadCertificate(certId, filename) {
+    try {
+        const url = `${API_BASE}/certificates/${certId}`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            const errorText = await resp.text();
+            let detail = errorText;
+            try {
+                const xml = parseXML(errorText);
+                detail = xml.querySelector('detail')?.textContent || errorText;
+            } catch(e) {}
+            throw new Error(detail || `HTTP ${resp.status}`);
+        }
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename || `certificate_${certId}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        toast(`📥 Downloading ${filename}...`);
+    } catch (e) {
+        toast(`Error downloading file: ${e.message}`, 'error');
     }
 }
 
