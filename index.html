@@ -1115,7 +1115,20 @@ function showPage(page) {
 // ===== XML PARSER =====
 function parseXML(xmlStr) {
     const parser = new DOMParser();
-    return parser.parseFromString(xmlStr, 'text/xml');
+    const xml = parser.parseFromString(xmlStr, 'text/xml');
+    // Check for parser errors
+    const parseError = xml.querySelector('parsererror');
+    if (parseError) {
+        console.warn('XML Parse Error:', parseError.textContent);
+        console.warn('Raw XML (first 500 chars):', xmlStr.substring(0, 500));
+    }
+    return xml;
+}
+
+function safeTextContent(element, selector) {
+    if (!element) return '';
+    const el = element.querySelector(selector);
+    return el?.textContent || '';
 }
 
 function xmlToJson(xml) {
@@ -1145,9 +1158,15 @@ function xmlToJson(xml) {
 
 function getSurveyListFromXML(xmlStr) {
     const xml = parseXML(xmlStr);
+    const parseError = xml.querySelector('parsererror');
+    if (parseError) {
+        console.error('XML Parse Error in survey list:', parseError.textContent);
+        return [];
+    }
     const surveys = [];
     for (const child of xml.documentElement.children) {
         const id = parseInt(child.getAttribute('id'));
+        if (isNaN(id)) continue;
         const name = child.querySelector('name')?.textContent || '';
         const desc = child.querySelector('description')?.textContent || '';
         const createdAt = child.querySelector('created_at')?.textContent || '';
@@ -1160,9 +1179,15 @@ function getSurveyListFromXML(xmlStr) {
 
 function getQuestionListFromXML(xmlStr) {
     const xml = parseXML(xmlStr);
+    const parseError = xml.querySelector('parsererror');
+    if (parseError) {
+        console.error('XML Parse Error in question list:', parseError.textContent);
+        return [];
+    }
     const questions = [];
     for (const child of xml.documentElement.children) {
         const id = parseInt(child.getAttribute('id'));
+        if (isNaN(id)) continue;
         const name = child.getAttribute('name') || '';
         const type = child.getAttribute('type') || '';
         const required = child.getAttribute('required') === 'yes';
@@ -1186,6 +1211,12 @@ function getQuestionListFromXML(xmlStr) {
 function getResponseListFromXML(xmlStr) {
     const xml = parseXML(xmlStr);
     const responses = [];
+    // Check for parser errors
+    const parseError = xml.querySelector('parsererror');
+    if (parseError) {
+        console.error('XML Parse Error in response list:', parseError.textContent);
+        return { responses: [], total: 0, page: 1, pageSize: 10 };
+    }
     // Get total, page, page_size from root attributes
     const total = parseInt(xml.documentElement.getAttribute('total')) || 0;
     const page = parseInt(xml.documentElement.getAttribute('page')) || 1;
@@ -1456,7 +1487,7 @@ async function viewSurveyDetail(id) {
         const questionsResp = await apiCall('GET', `/surveys/${id}/questions`);
         const questions = getQuestionListFromXML(questionsResp.text);
 
-        const responsesResp = await apiCall('GET', `/surveys/${id}/responses`, { page: 1, pageSize: 100 });
+        const responsesResp = await apiCall('GET', `/surveys/${id}/responses`, { page: 1, pageSize: 1000 });
         const responseData = getResponseListFromXML(responsesResp.text);
 
         container.innerHTML = `
@@ -1495,8 +1526,8 @@ async function viewSurveyDetail(id) {
                 }
             </div>
         `;
-    } catch (e) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><h3>Error loading survey</h3><p>${e.message}</p></div>`;
+        } catch (e) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><h3>Error loading survey</h3><p>${escapeHtml(e.message)}</p><button class="btn btn-primary" onclick="viewSurveyDetail(${currentSurveyId})" style="margin-top:12px;">Retry</button></div>`;
     }
 }
 
